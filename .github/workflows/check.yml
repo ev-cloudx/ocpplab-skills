@@ -27,6 +27,7 @@ jobs:
       - name: Every skill is discoverable
         run: |
           expected=$(find skills -name SKILL.md | wc -l)
-          found=$(npx -y skills@1.7.2 add . --list 2>&1 | tee /dev/stderr | grep -cE '^│ +ocpplab[a-z-]*$' || true)
-          echo "SKILL.md files: $expected, listed: $found"
-          [ "$found" -eq "$expected" ]
+          found=$(npx -y skills@1.7.2 add . --list 2>&1 | sed 's/\x1b\[[0-9;]*m//g' \
+            | sed -nE 's/.*Found ([0-9]+) skills.*/\1/p' | head -1)
+          echo "SKILL.md files: $expected, discovered: ${found:-0}"
+          [ "${found:-0}" -eq "$expected" ]

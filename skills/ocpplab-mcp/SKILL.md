@@ -1,6 +1,6 @@
 ---
 name: ocpplab-mcp
-description: Connect an AI client (Claude Code, Codex, Cursor, VS Code, Windsurf, Claude Desktop, claude.ai, ChatGPT) to the OCPPLab MCP servers - the product server that acts on OCPPLab data (288 tools) and the docs server that answers questions from docs.ocpplab.io. Use when the user wants an agent to use OCPPLab through MCP, or an OCPPLab MCP connection fails.
+description: Connect an AI client (Claude Code, Codex, Cursor, VS Code, Windsurf, Claude Desktop, claude.ai, ChatGPT) to the OCPPLab MCP servers - the product server that acts on OCPPLab data (285 tools) and the docs server that answers questions from docs.ocpplab.io. Use when the user wants an agent to use OCPPLab through MCP, or an OCPPLab MCP connection fails.
 ---
 
 # OCPPLab MCP
@@ -33,7 +33,7 @@ Configs for Cursor, VS Code, Windsurf, Claude Desktop and Python: https://docs.o
 
 ## Connect only what the task needs
 
-Each server adds its tool list to the agent's context. The all-in-one `/mcp` has 288 tools; prefer domain servers when the task stays in one or two:
+Each server adds its tool list to the agent's context. The all-in-one `/mcp` has 285 tools; prefer domain servers when the task stays in one or two:
 
 `/mcp/evcharger` (virtual chargers), `/mcp/cpo`, `/mcp/emsp`, `/mcp/ocpi`, `/mcp/proxy`, `/mcp/booking`, `/mcp/energy`, `/mcp/webhook`.
 
@@ -45,7 +45,7 @@ Every tool: https://docs.ocpplab.io/mcp/servers-and-tools.md
 - Tools carry read-only / destructive / idempotent hints; ask the user before a destructive one.
 - Long-running tools return a tracking id, and their description names the tool to poll (e.g. poll `evcharger_get_command_status`).
 - Updates: omit a field to leave it unchanged; send `null` to clear it.
-- Limit: 120 calls per minute per user and organization, shared by every MCP URL; over it, wait `Retry-After`.
+- Limit: 120 tool calls per minute per user and organization, shared by every MCP URL (`initialize` and `tools/list` are not counted). Over it, a tool call returns the tool error `rate limit exceeded (429): retry after <N>s`; wait that many seconds.
 
 ## Troubleshooting
 
@@ -55,6 +55,7 @@ Every tool: https://docs.ocpplab.io/mcp/servers-and-tools.md
 | "This app has no OCPPLab organization access" | The user left that organization: disconnect in Studio (Settings → Connected apps) and reconnect |
 | `403 admin role required` | The tool needs an organization admin |
 | `404` for a known id | The id belongs to another organization |
+| Tool error `rate limit exceeded (429): retry after <N>s` | Over 120 tool calls per minute; wait the seconds in the message |
 | Wrong tool picked | Connect fewer domain servers |
 
 Smoke test:
